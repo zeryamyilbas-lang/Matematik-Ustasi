@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minik Dahi Matematik Oyunu</title>
+    <style>
+        /* Gökkuşağı Arka Plan Animasyonu */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(45deg, #ffadad, #ffd6a5, #fdffb6, #caffbf, #9bf6ff, #a0c4ff, #bdb2ff, #ffc6ff);
+            background-size: 400% 400%;
+            animation: rainbowBG 15s ease infinite;
+        }
+
+        @keyframes rainbowBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Oyun Kutusu */
+        #game-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            border: 8px solid #fff;
+        }
+
+        h1 { color: #ff4757; text-shadow: 2px 2px #ffeaa7; font-size: 32px; }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 18px;
+            color: #2f3542;
+        }
+
+        .btn-rainbow {
+            background: linear-gradient(to right, #ff416c, #ff4b2b, #f9d423, #32e0c4, #00d2ff, #9d50bb);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-rainbow:hover { transform: scale(1.1); }
+
+        #question-area { font-size: 48px; margin: 30px 0; color: #341f97; }
+        
+        input {
+            width: 100px;
+            padding: 10px;
+            font-size: 24px;
+            border-radius: 10px;
+            border: 3px solid #747d8c;
+            text-align: center;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            min-height: 1.5em;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-card">
+    <div id="start-screen">
+        <h1>🌈 Minik Dahi Matematik 🌈</h1>
+        <p>Gökkuşağı dünyasına hoş geldin!</p>
+        <button class="btn-rainbow" onclick="startGame()">OYUNA BAŞLA</button>
+    </div>
+
+    <div id="game-screen" style="display:none;">
+        <div class="stats-bar">
+            <span>⭐ Seviye: <span id="level-display">1</span></span>
+            <span>❤️ Can: <span id="lives-display">3</span></span>
+            <span>💎 <span id="diamond-display">0</span></span>
+        </div>
+        
+        <div id="question-area">Soru?</div>
+        <input type="number" id="user-input" placeholder="?">
+        <br><br>
+        <button class="btn-rainbow" style="font-size: 18px; padding: 10px 25px;" onclick="checkAnswer()">Cevapla!</button>
+        
+        <div id="message"></div>
+    </div>
+</div>
+
+<script>
+    let level = 1;
+    let questionsSolvedInLevel = 0;
+    let lives = 3;
+    let diamonds = 0;
+    let points = 0;
+    let currentAnswer = 0;
+    let solutionHint = "";
+
+    function startGame() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        document.getElementById('message').innerText = "";
+        document.getElementById('user-input').value = "";
+        document.getElementById('user-input').focus();
+
+        const ops = ['+', '-', '*', '/'];
+        let op = ops[Math.floor(Math.random() * ops.length)];
+        let n1, n2;
+        let displayOp = ""; // Ekranda görünecek sembol
+
+        if (op === '/') {
+            displayOp = ":"; // Bölme işareti güncellendi
+            n2 = Math.floor(Math.random() * 5) + 1; 
+            n1 = n2 * (Math.floor(Math.random() * 5) + 1);
+            currentAnswer = n1 / n2;
+        } else if (op === '*') {
+            displayOp = "x"; // Çarpma işareti güncellendi
+            n1 = Math.floor(Math.random() * 10) + 1;
+            n2 = Math.floor(Math.random() * 5) + 1;
+            currentAnswer = n1 * n2;
+        } else if (op === '+') {
+            displayOp = "+";
+            n1 = Math.floor(Math.random() * 20) + 1;
+            n2 = Math.floor(Math.random() * 20) + 1;
+            currentAnswer = n1 + n2;
+        } else {
+            displayOp = "-";
+            n1 = Math.floor(Math.random() * 20) + 1;
+            n2 = Math.floor(Math.random() * 20) + 1;
+            if (n1 < n2) [n1, n2] = [n2, n1];
+            currentAnswer = n1 - n2;
+        }
+
+        solutionHint = `Minik Dahi bak bu soruyu şöyle yapmalısın: ${n1} ${displayOp} ${n2} işleminin sonucu ${currentAnswer} eder.`;
+        document.getElementById('question-area').innerText = `${n1} ${displayOp} ${n2} = ?`;
+    }
+
+    function checkAnswer() {
+        const userVal = parseInt(document.getElementById('user-input').value);
+        const msg = document.getElementById('message');
+
+        if (userVal === currentAnswer) {
+            points += 25;
+            diamonds++;
+            questionsSolvedInLevel++;
+            msg.style.color = "#2ed573";
+            msg.innerText = "Harikasın! +25 Puan 💎";
+
+            if (questionsSolvedInLevel >= 4) {
+                level++;
+                questionsSolvedInLevel = 0;
+                msg.innerText = "YAŞASIN! Seviye Atladın! 🚀";
+            }
+            
+            updateStats();
+            setTimeout(nextQuestion, 1500);
+        } else {
+            lives--;
+            points -= 5;
+            msg.style.color = "#ff4757";
+
+            if (lives === 2) {
+                msg.innerText = "Dikkatli olmalısın Minik Dahi! ✨";
+            } else if (lives === 1) {
+                msg.innerText = "Biraz daha dikkatli ol! 🧐";
+            } else {
+                msg.innerText = solutionHint;
+                setTimeout(() => {
+                    alert("Oyun Bitti! Toplam Mücevherin: " + diamonds);
+                    location.reload();
+                }, 4000);
+            }
+            updateStats();
+        }
+    }
+
+    function updateStats() {
+        document.getElementById('level-display').innerText = level;
+        document.getElementById('lives-display').innerText = lives;
+        document.getElementById('diamond-display').innerText = diamonds;
+    }
+</script>
+
+</body>
+</html>
+
